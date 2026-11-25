@@ -1,1 +1,1 @@
-# dynamic-KOL-KOC-content-intelligence-
+# dynamic-KOL-KOC-content-intelligence
