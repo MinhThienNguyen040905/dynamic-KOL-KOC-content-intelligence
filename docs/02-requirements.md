@@ -1,49 +1,51 @@
 # Yêu cầu và điều kiện nghiệm thu
 
-## Yêu cầu môn học
+## Căn cứ ưu tiên
 
-- Có bối cảnh streaming, near-real-time hoặc dữ liệu liên tục cập nhật.
-- Sử dụng hợp lý Kafka, Spark Structured Streaming, storage và AI inference/service.
-- AI có chiều sâu kỹ thuật; tránh chỉ làm classification đơn lẻ.
-- Đánh giá chất lượng AI, hiệu năng hệ thống và tính hợp lý khi mở rộng.
-- Demo pipeline end-to-end; có đề cương, kế hoạch dữ liệu và sơ đồ kiến trúc.
+Ngày **25/11/2026**, nhóm xác nhận giảng viên giới hạn AI của đề tài vào **phân loại chủ đề theo cây**. Áp dụng chỉ đạo này thay cho yêu cầu AI rộng hơn trong đề xuất ban đầu. Giữ pipeline streaming/near-real-time và đánh giá hệ thống của SE363.
 
-Không yêu cầu tạo Big Data thực sự trên hạ tầng lớp học. Phải chứng minh vai trò kiến trúc bằng thiết kế và thực nghiệm ở quy mô khả thi.
+Taxonomy chưa được giảng viên cung cấp. Chưa chốt một nội dung có một hay nhiều đường dẫn nhãn, số tầng và khả năng dừng ở nút cha. Không xem cây minh họa là yêu cầu chính thức.
 
-## Yêu cầu chức năng đề xuất
+## Yêu cầu chức năng mục tiêu
+
+Các ID dưới đây được giữ để tiện đối chiếu, nhưng nội dung FR-04/05/07 đã thay đổi theo phạm vi mới.
 
 | ID | Yêu cầu | Minh chứng nghiệm thu |
 | --- | --- | --- |
-| FR-01 | Quản lý danh sách kênh theo dõi | Thêm hoặc vô hiệu hóa kênh qua cấu hình, collector sử dụng đúng cấu hình |
-| FR-02 | Thu thập metadata video, bình luận và snapshot tương tác theo chu kỳ | Có bản ghi nguồn, thời điểm lấy dữ liệu, lỗi và tiến độ thu thập |
-| FR-03 | Đưa dữ liệu vào Kafka và xử lý bằng Spark | Truy vết được một sự kiện từ nguồn đến bản ghi kết quả |
-| FR-04 | Phân tích chủ đề và thương hiệu | Kết quả có nhãn, nguồn bằng chứng, phiên bản model và trạng thái xử lý |
-| FR-05 | Phân tích bình luận theo entity/aspect/opinion/sentiment | Một bình luận có thể chứa nhiều tuple, từng tuple có đoạn bằng chứng |
-| FR-06 | Cập nhật profile theo thời gian | Dữ liệu mới làm thay đổi đúng profile, có thời điểm cập nhật và số mẫu |
-| FR-07 | Lọc theo KOL, khoảng thời gian, chủ đề và thương hiệu | API/dashboard trả kết quả khớp dữ liệu kiểm chứng |
-| FR-08 | Mở dẫn chứng từ kết quả tổng hợp | Xem được trích đoạn và liên kết nguồn nếu nguồn còn tồn tại |
-| FR-09 | Replay dữ liệu để demo và đo tải | Có tốc độ replay, seed nếu dùng ngẫu nhiên, run ID và nhãn replay |
+| FR-01 | Quản lý nguồn/tài khoản KOL theo dõi | Collector dùng đúng cấu hình |
+| FR-02 | Thu thập bài đăng/video và metadata cần cho phân loại | Có nguồn, ID, timestamp và trạng thái dữ liệu thiếu; comment/engagement không bắt buộc |
+| FR-03 | Đưa dữ liệu qua Kafka và Spark | Truy vết được input đến kết quả |
+| FR-04 | Phân loại chủ đề theo cây đã chốt | Đường dẫn gồm các node hợp lệ và đúng quan hệ cha–con |
+| FR-05 | Quản lý phiên bản taxonomy và các trường hợp chưa phân loại được | Có taxonomy ID/version, trạng thái thiếu thông tin/ngoài cây; không tự sinh nhãn |
+| FR-06 | Cập nhật profile chủ đề theo KOL/thời gian | Không đếm trùng; phiên bản phân tích cũ không cộng vào kết quả hiện hành |
+| FR-07 | Lọc theo KOL, thời gian và nhánh chủ đề | Lọc nút cha truy xuất đúng các nội dung thuộc nhánh con |
+| FR-08 | Mở nội dung nguồn từ số liệu tổng hợp | Xem ID, link, văn bản nguồn và đường dẫn nhãn |
+| FR-09 | Replay để demo và kiểm tra tải | Run ID, mode và cấu hình replay được ghi nhận |
 
-## Yêu cầu phi chức năng đề xuất
+## Yêu cầu phi chức năng
 
 | ID | Yêu cầu | Minh chứng nghiệm thu |
 | --- | --- | --- |
-| NFR-01 | Xử lý lặp có tính idempotent | Phát lại cùng sự kiện không làm tăng đếm hoặc tạo tuple trùng |
-| NFR-02 | Có chính sách dữ liệu đến muộn | Kiểm thử trước/sau watermark và ghi nhận dữ liệu cần tính lại |
-| NFR-03 | Có thể phục hồi sau restart | Khôi phục checkpoint, xử lý tiếp, đối soát số sự kiện và kết quả |
-| NFR-04 | AI service lỗi không làm mất dữ liệu | Retry có giới hạn, DLQ và khả năng xử lý lại |
-| NFR-05 | Đo được hiệu năng | Báo cáo p50/p95 latency, throughput, lag, tỷ lệ lỗi và cấu hình chạy |
-| NFR-06 | Có thể tái lập thực nghiệm | Ghi phiên bản code/model/data, tham số, tài nguyên và lệnh chạy |
-| NFR-07 | Quản lý cấu hình và thông tin truy cập | Dùng biến môi trường; không commit API key hoặc credential |
+| NFR-01 | Idempotency | Gửi lại input không tăng số nội dung hoặc đóng góp vào profile |
+| NFR-02 | Chính sách dữ liệu đến muộn | Kiểm thử cập nhật và reconciliation theo thiết kế đã triển khai |
+| NFR-03 | Phục hồi sau restart | Khôi phục checkpoint và đối soát input/completed/pending/DLQ |
+| NFR-04 | Lỗi inference không làm mất input | Retry có giới hạn, DLQ và xử lý lại được |
+| NFR-05 | Đo hiệu năng | p50/p95 latency, throughput, lag, lỗi và tài nguyên |
+| NFR-06 | Tái lập | Ghi code/model/taxonomy/data version, tham số và cấu hình |
+| NFR-07 | Quản lý secret | Biến môi trường; không commit credential |
+| NFR-08 | Tính hợp lệ phân cấp | Không chu trình, không node mồ côi; output không chứa đường dẫn không tồn tại |
 
-## Quy tắc hiển thị
+## Quy tắc hiển thị và tổng hợp
 
-- Tách cảm xúc về KOL khỏi cảm xúc về sản phẩm hoặc thương hiệu.
-- Hiển thị khoảng thời gian, số bình luận đã phân tích và số bình luận chưa xử lý.
-- Dữ liệu thiếu hoặc chưa đủ mẫu phải được thể hiện rõ; không mặc định thành trung lập.
-- Nhận định tăng/giảm phải có khoảng đối chiếu và mẫu số; không so sánh số đếm của hai khoảng dài khác nhau mà không chuẩn hóa.
-- Chỉ số tương tác từ nhiều lần thu thập là snapshot, không cộng tổng trực tiếp.
+- Hiển thị cây, số mẫu, khoảng thời gian và phiên bản taxonomy/model đang xem.
+- Đếm một nội dung tối đa một lần tại mỗi node, dù nhiều đường dẫn cùng đi qua node đó.
+- Nếu đa nhãn, các nhánh có thể chồng lấp; tỷ lệ của các nhánh không nhất thiết cộng thành 100%.
+- Hiển thị riêng pending, thiếu thông tin và ngoài taxonomy; không ép chúng vào một chủ đề.
+- Không so sánh trực tiếp số liệu dùng taxonomy khác phiên bản khi chưa có mapping hoặc phân loại lại.
+- Nếu còn hiển thị engagement, giữ snapshot và định nghĩa mẫu số riêng; không dùng chúng để suy ra chủ đề.
 
 ## Điều kiện hoàn thành MVP
 
-FR-01 đến FR-09 có minh chứng; NFR-01 đến NFR-07 được kiểm tra ở mức phù hợp. Có test set tách biệt, baseline, báo cáo AI/hệ thống và demo dữ liệu mới cập nhật profile có dẫn chứng. Ngưỡng F1, latency và throughput sẽ được chốt sau pilot, trước thực nghiệm cuối cùng.
+Cây và chính sách gán nhãn được chốt; có tập nhãn được kiểm tra, test set tách biệt, baseline và kết quả phân cấp. FR-01 đến FR-09 và NFR-01 đến NFR-08 có minh chứng phù hợp. Demo dữ liệu mới cập nhật nhánh chủ đề/profile; có báo cáo AI và hệ thống. Ngưỡng chất lượng/hiệu năng chốt sau pilot, trước đánh giá cuối.
+
+Các test của prototype cũ chỉ chứng minh luồng tích hợp cũ; chưa nghiệm thu classifier phân cấp.

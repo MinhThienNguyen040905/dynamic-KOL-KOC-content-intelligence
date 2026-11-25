@@ -1,5 +1,7 @@
 # Kiến trúc hệ thống đề xuất
 
+> Phạm vi AI mới: chỉ phân loại chủ đề theo cây. Giữ hạ tầng và Served AI; kết quả mục tiêu là đường dẫn node/taxonomy version và profile chủ đề. Prototype hiện còn logic bình luận/sentiment của hướng cũ, chưa được chuyển đổi. Comment và engagement không phải dữ liệu bắt buộc cho classifier. Xem [thiết kế mới](05-ai-design.md).
+
 > Bộ khung local đã hiện thực luồng Kafka/Spark → AI service → database/API. Profile hiện tổng hợp khi truy vấn từ các bản ghi canonical; stateful window/watermark, collector thật và model nghiên cứu chưa triển khai. Xem [trạng thái và cách chạy](09-development.md).
 
 ## Tổng quan

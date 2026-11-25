@@ -1,5 +1,7 @@
 # Điều phối bằng Airflow
 
+> DAG và kiểm chứng dưới đây hiện dùng prototype cũ. Theo phạm vi mới chỉ phân loại chủ đề theo cây, cần cập nhật sample/manifest/sensor khi chuyển output và ngừng gửi comment để inference. Kiến trúc điều phối các lượt hữu hạn được giữ lại.
+
 ## Phạm vi
 
 Airflow điều phối các công việc hữu hạn: kiểm tra đầu vào, phát dữ liệu, chờ kết quả và ghi nhận một lượt xử lý. Kafka, Spark và inference worker tiếp tục chạy như service streaming. Collector thật, backfill và workflow đánh giá model sẽ được bổ sung thành DAG hoặc task sau khi có dữ liệu.

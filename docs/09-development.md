@@ -1,5 +1,7 @@
 # Thiết lập và vận hành local
 
+> **Phạm vi mới:** tài liệu mục tiêu đã chuyển sang phân loại chủ đề dạng cây theo chỉ đạo giảng viên. Runtime và các kết quả kiểm chứng bên dưới vẫn thuộc prototype `rules-v1` trước thay đổi; các trường brand/opinion/sentiment không còn là mục tiêu phát triển. Chưa có classifier phân cấp được triển khai hoặc đánh giá.
+
 ## Trạng thái hiện tại
 
 Đã có bộ khung Python, Docker Compose và luồng tích hợp dùng dữ liệu tổng hợp:
@@ -8,7 +10,7 @@
 
 Airflow đã được bổ sung để điều phối các lượt replay và kiểm tra hoàn tất. Xem [hướng dẫn Airflow](10-airflow.md); UI tại <http://localhost:8080>. Khi chạy toàn bộ stack gồm Airflow, đề xuất dành ít nhất 8 GB RAM cho Docker và điều chỉnh theo số liệu thực tế.
 
-AI `rules-v1` là luật cố định để kiểm tra tích hợp. Chưa có mô hình ABSA nghiên cứu, entity linking chính xác hoặc đánh giá chất lượng trên dữ liệu gán nhãn. Collector YouTube thật, bộ gán nhãn và phân tích media là bước tiếp theo.
+AI `rules-v1` là luật cố định để kiểm tra tích hợp cũ. Bước tiếp theo là chốt taxonomy, xây tập nhãn nội dung và chuyển schema/inference/profile/UI/test sang phân loại chủ đề phân cấp.
 
 ## Yêu cầu môi trường
 
@@ -102,9 +104,9 @@ docker compose stop
 
 ## Bước tiếp theo
 
-1. Chọn kênh thật, xác nhận API/quota và xây collector có tiến độ phân trang.
-2. Gán nhãn pilot, khóa taxonomy và tách train/dev/test.
-3. Thay baseline qua cùng hợp đồng `/analyze`; thêm version model riêng.
+1. Chốt taxonomy và chính sách nhãn với giảng viên; chọn nguồn nội dung bao phủ cây.
+2. Gán nhãn nội dung pilot, khóa taxonomy/version và tách train/dev/test.
+3. Chuyển hợp đồng `/analyze`, profile, dashboard và test sang đường dẫn chủ đề; thay baseline và version model.
 4. Bổ sung metrics, window/watermark, backfill/reconciliation và kiểm thử lỗi.
 5. Đánh giá chất lượng AI và benchmark trước khi mở rộng media.
 

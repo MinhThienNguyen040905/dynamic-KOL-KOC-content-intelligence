@@ -1,68 +1,61 @@
 # Kế hoạch đánh giá
 
-## Nguyên tắc
+## Mục tiêu
 
-Tách đánh giá AI khỏi đánh giá pipeline. Dùng cùng tập test cho các phương án AI so sánh; dùng cấu hình và workload được ghi nhận cho các lần đo hệ thống. Mục tiêu định lượng được đặt sau pilot và khóa trước thực nghiệm cuối, không điều chỉnh theo kết quả test.
+Đánh giá **phân loại chủ đề theo cây** và pipeline streaming. Các tiêu chí ABSA/sentiment/entity extraction của kế hoạch cũ không còn áp dụng. Khóa taxonomy, chính sách nhãn, dataset split và mục tiêu trước khi chạy test cuối.
 
 ## Chất lượng AI
 
-| Tác vụ | Chỉ số chính | Phân tích bổ sung |
-| --- | --- | --- |
-| Chủ đề đa nhãn | Micro/macro F1 | F1 theo nhãn, support, lỗi nhãn hiếm |
-| Brand/entity mention | Precision/recall/F1 theo span | Exact match chính; overlap chỉ là bổ sung |
-| Entity linking | Accuracy trên mention có ID chuẩn | Coverage, trường hợp không xác định |
-| Aspect và sentiment | F1 theo thành phần | Macro F1, confusion matrix, support |
-| Opinion span | Span precision/recall/F1 | Exact match và overlap báo riêng |
-| Tuple ABSA | Precision/recall/F1 tuple end-to-end | Định nghĩa khớp entity/aspect/span/sentiment trước khi chạy |
+| Chỉ số | Định nghĩa dùng cho project |
+| --- | --- |
+| F1 từng tầng | Micro/macro F1 trên các node tại cùng độ sâu; báo support và coverage |
+| Đúng toàn đường dẫn | Tỷ lệ input có đường dẫn dự đoán khớp hoàn toàn ground truth; nếu đa nhãn dùng exact set match |
+| F1 lá/nhãn kết thúc | Đo ở mức chi tiết đã thống nhất, tách khỏi điểm tổ tiên |
+| Hierarchical precision/recall/F1 | Mở rộng nhãn dự đoán/thật bằng tổ tiên, bỏ root kỹ thuật, rồi tính giao giữa hai tập node |
+| Tỷ lệ đường dẫn không hợp lệ | Tỷ lệ output chứa node không tồn tại hoặc quan hệ cha–con sai |
+| Coverage và từ chối | Tỷ lệ đã phân loại, thiếu thông tin, ngoài taxonomy và cần rà soát |
 
-Quy định cách xử lý thực thể ngầm định và một-một khi ghép tuple dự đoán với nhãn. Báo cả số mẫu và độ bất định khi dữ liệu cho phép. Chất lượng sentiment trên tuple đã khớp không được thay thế điểm end-to-end.
+Với tập node mở rộng P (dự đoán) và T (nhãn thật), hierarchical precision dùng `|P ∩ T| / |P|`, recall dùng `|P ∩ T| / |T|`; F1 là trung bình điều hòa. Khóa cách micro/macro aggregation và xử lý tập rỗng trước thực nghiệm. Root không được cộng điểm. Trạng thái từ chối được báo riêng, không coi hai tập rỗng là dự đoán đúng chủ đề.
 
-## Ma trận thực nghiệm AI
+Nếu cho phép dừng ở node cha, báo đúng ở cấp đó và coverage ở cấp sâu; không dùng điểm tổ tiên để che lỗi phân loại chi tiết. Với taxonomy có độ sâu không đều, ghi số mẫu được đánh giá tại mỗi tầng.
 
-- A: baseline nội dung và baseline tuple chỉ dùng bình luận.
-- B: trích xuất tuple có ngữ cảnh nội dung.
-- C, nếu triển khai: bổ sung transcript/keyframe.
+## Thực nghiệm
 
-Chọn tham số trên dev; đánh giá test đã khóa; lưu dự đoán để so sánh lỗi trên cùng mẫu. Nhãn model hỗ trợ phải được con người kiểm tra, không dùng output cùng model làm ground truth tự động.
+- Baseline dự đoán phẳng và suy tổ tiên so với phương án khai thác cây, trên cùng input/test.
+- Phân tích lỗi: nhầm cùng node cha, nhầm khác nhánh cấp cao, thiếu ngữ cảnh, đa chủ đề và nhãn hiếm.
+- Nếu có media: so sánh text-only với thêm transcript/OCR/thông tin ảnh, giữ cùng test và ghi chi phí/latency.
+- Chọn tham số/ngưỡng trên dev; không sửa cây sau khi xem test để tăng điểm.
+- Báo support theo node, phương pháp gán nhãn/phân xử và giới hạn dữ liệu.
 
 ## Hiệu năng hệ thống
 
 | Chỉ số | Định nghĩa |
 | --- | --- |
-| Processing latency | Từ `ingested_at` đến kết quả sẵn sàng qua API; báo p50/p95 |
-| Collection freshness | Từ thời gian nguồn đến lúc collector quan sát; tách khỏi processing latency |
-| Throughput đầu vào | Số sự kiện nhận/giây theo loại sự kiện |
-| Throughput hoàn tất | Số input được xử lý thành công/giây; không dùng số tuple thay số input |
-| Kafka lag | Chênh lệch offset producer/consumer theo topic/partition |
-| AI backlog | Số request chờ và tuổi request lâu nhất |
-| Error rate | Lỗi/tổng request theo công đoạn, kèm retry và DLQ |
-| Resource use | CPU/RAM; GPU và chi phí API nếu có |
+| Processing latency | `ingested_at` đến kết quả sẵn sàng qua API; p50/p95 |
+| Collection freshness | Thời gian nguồn đến lúc collector quan sát; tách khỏi thời gian xử lý |
+| Input/completed throughput | Số nội dung nhận/xử lý xong mỗi giây, không dùng số node nhãn thay số nội dung |
+| Kafka lag / AI backlog | Offset lag, số request chờ và tuổi request lâu nhất |
+| Error rate | Tỷ lệ lỗi theo bước, retry và DLQ |
+| Resource use | CPU/RAM/GPU và chi phí API nếu có |
 
-Không gọi thời gian từ lúc đăng video đến dashboard là riêng độ trễ Spark. Với video cũ mới được phát hiện, ghi rõ ảnh hưởng của backfill và polling.
+## Kiểm tra tính đúng
 
-## Kịch bản kiểm tra tính đúng
+1. Gửi lại cùng event: không tăng số content hoặc số đếm node.
+2. Sửa nội dung hoặc chạy lại model: chỉ phiên bản phân tích hiện hành đóng góp vào profile.
+3. Output node sai cây hoặc taxonomy version không hợp lệ: bị từ chối/ghi lỗi rõ ràng.
+4. Đa nhãn có chung tổ tiên: không đếm lặp tổ tiên; nếu đơn nhãn, từ chối nhiều đường dẫn.
+5. Dữ liệu muộn/restart: khôi phục checkpoint và đối soát input/completed/pending/DLQ.
+6. AI timeout/schema lỗi/database ngắt: kiểm tra retry và xử lý lại.
+7. Taxonomy đổi: không trộn thống kê khác version; có mapping hoặc kế hoạch phân loại lại.
 
-1. Gửi hai lần cùng event: số nội dung và đóng góp profile không đổi.
-2. Sửa bình luận hoặc chạy lại model: phiên bản cũ không được cộng thêm vào aggregate hiện hành.
-3. Event đến muộn trong ngưỡng và ngoài ngưỡng: kiểm tra cập nhật, ghi nhận và tính lại theo chính sách.
-4. Restart Spark/worker: đối soát input, completed, pending và DLQ; không chỉ kiểm tra process đã chạy lại.
-5. AI timeout, output sai schema hoặc database tạm ngắt: kiểm tra retry và khả năng xử lý lại.
-6. Snapshot tương tác lặp, thiếu field hoặc số đếm giảm: không cộng sai và không biến thiếu thành 0.
+## Tải và tái lập
 
-## Kịch bản tải
+Replay dataset ở tải tăng dần; có burst lệch về một KOL, cấu hình gốc và cấu hình tăng tài nguyên. Tách cold start/warm-up, model thật và mock. Ghi code commit, model/taxonomy/data version, hardware, cấu hình Kafka/Spark, tốc độ/timestamp replay, raw metrics và lỗi.
 
-- Replay cùng dataset ở tải tăng dần; xác định mức tải bền vững khi backlog không tăng liên tục.
-- Gửi burst có một KOL chiếm tỷ trọng lớn để kiểm tra lệch tải.
-- So sánh một cấu hình gốc với cấu hình tăng worker hoặc partition; giữ các yếu tố khác ổn định.
-- Đo cold start riêng, warm-up trước phép đo ổn định; đề xuất lặp ít nhất ba lần nếu tài nguyên cho phép.
-- Chạy một lượt dùng model thật; lượt mock inference chỉ dùng cô lập bottleneck và phải được ghi nhãn.
+Mức tải và thời lượng chốt sau pilot. Demo nhỏ chưa chứng minh hỗ trợ hàng nghìn tài khoản.
 
-Tốc độ cụ thể, thời lượng và cấu hình chốt sau pilot. Báo giới hạn máy thử nghiệm; không suy ra đã hỗ trợ hàng nghìn kênh từ một demo nhỏ.
+## Demo nghiệm thu
 
-## Hồ sơ thực nghiệm cần lưu
+Nạp nội dung mới → xuất đường dẫn chủ đề → thấy profile theo cây cập nhật → lọc một node cha để xem nội dung ở các nhánh con → mở nguồn → gửi lại event để chứng minh không đếm trùng. Hiển thị run/mode, taxonomy/model version và số input chưa phân loại được.
 
-Mỗi run có code commit, dataset manifest, model/prompt/taxonomy version, tham số Spark/Kafka, hardware, tốc độ replay, chế độ timestamp, warm-up, thời gian đo, raw metrics và lỗi. Báo cáo cuối liên kết được biểu đồ với run tương ứng.
-
-## Bản demo nghiệm thu
-
-Chọn KOL và khoảng thời gian → nạp dữ liệu mới → quan sát trạng thái xử lý → profile thay đổi → mở bằng chứng → gửi lại sự kiện để chứng minh không đếm trùng. Hiển thị rõ chế độ live/replay và độ trễ đo được.
+Các kiểm tra prototype cũ không thay thế đánh giá classifier phân cấp.

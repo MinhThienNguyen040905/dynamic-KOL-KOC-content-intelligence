@@ -2,6 +2,8 @@
 
 Bộ tài liệu này chuyển hướng đề tài đã thống nhất thành kế hoạch có thể triển khai và kiểm chứng. Ngày khởi tạo: **25/11/2026**.
 
+**Cập nhật phạm vi cùng ngày:** giảng viên giới hạn AI vào phân loại chủ đề theo cây; chưa cung cấp taxonomy. Chỉ đạo riêng này được ưu tiên so với đề xuất AI rộng trong tài liệu chung. Runtime vẫn là prototype cũ; xem [thiết kế AI](05-ai-design.md) và [bản thảo taxonomy](11-topic-taxonomy.md).
+
 ## Thứ tự đọc
 
 1. [Đề cương và phạm vi](01-project-proposal.md).
@@ -14,6 +16,7 @@ Bộ tài liệu này chuyển hướng đề tài đã thống nhất thành k�
 8. [Quyết định và rủi ro](08-decisions-and-risks.md).
 9. [Thiết lập và phát triển](09-development.md).
 10. [Điều phối bằng Airflow](10-airflow.md).
+11. [Bản thảo cây chủ đề](11-topic-taxonomy.md).
 
 ## Tài liệu nguồn trong thư mục
 

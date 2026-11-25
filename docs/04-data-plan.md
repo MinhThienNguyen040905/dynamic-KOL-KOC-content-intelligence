@@ -1,74 +1,63 @@
 # Kế hoạch dữ liệu
 
-## Pilot trước khi mở rộng
+## Đơn vị dữ liệu và nhãn
 
-1. Chọn 2–3 kênh cùng lĩnh vực và thử truy cập metadata/bình luận bằng API chính thức.
-2. Ghi số bản ghi lấy được, quota sử dụng, lỗi, thời gian và tỷ lệ dữ liệu thiếu.
-3. Lấy khoảng 200 bình luận để xây hướng dẫn nhãn và khảo sát tỷ lệ có ý kiến hữu ích.
-4. Chốt lĩnh vực, taxonomy, chu kỳ polling và quy mô nhãn theo kết quả pilot.
+Theo phạm vi giảng viên giới hạn, tập nhãn phục vụ **phân loại chủ đề dạng cây**. Đơn vị dự kiến là một bài đăng/video. Bình luận và engagement không phải điều kiện bắt buộc của dataset phân loại chủ đề.
 
-Mốc 200 bình luận phục vụ khảo sát, không được xem là quy mô đủ cho đánh giá cuối kỳ. Không giả định API metadata đồng thời cung cấp file video hoặc transcript; xác minh riêng nguồn và quyền truy cập cho từng loại dữ liệu.
+Giảng viên chưa cung cấp taxonomy. Phải chốt cây, độ sâu, đơn nhãn/đa nhãn và quy tắc nhãn ở node cha trước khi gán nhãn quy mô lớn; xem [taxonomy](11-topic-taxonomy.md).
 
-## Dữ liệu cần lưu
+## Pilot
+
+1. Thu thập nội dung từ nguồn có quyền truy cập, khảo sát độ phủ chủ đề và dữ liệu thiếu.
+2. Lấy khoảng 200 nội dung để xây/điều chỉnh định nghĩa nhãn và ví dụ ranh giới.
+3. Thử gán nhãn độc lập một phần, phân xử bất đồng, xác định các nhánh quá hẹp hoặc chồng lấn.
+4. Xác nhận taxonomy với giảng viên rồi đóng băng phiên bản cho thực nghiệm.
+5. Chốt quy mô tập train/dev/test theo số lớp, phân bố và tài nguyên.
+
+Mốc 200 là khảo sát, chưa chứng minh đủ dữ liệu để train. Không mặc định giữ phạm vi chỉ một lĩnh vực nếu taxonomy cần phân biệt nhiều nhóm cấp cao.
+
+## Trường dữ liệu mục tiêu
 
 | Nhóm | Trường chính |
 | --- | --- |
-| Creator | ID nguồn, tên hiển thị, URL, lĩnh vực, trạng thái theo dõi |
-| Content | ID video, creator ID, tiêu đề, mô tả, thời gian đăng/cập nhật, URL, input version |
-| Comment | ID, video ID, parent ID nếu có, text gốc, thời gian đăng/cập nhật, source version |
-| Engagement | Video ID, thời điểm quan sát, các số đếm có sẵn và trạng thái thiếu |
-| Evidence | Source ID/version, field, offset hoặc timestamp, trích đoạn |
-| Analysis | Tuples/labels, model version, taxonomy version, trạng thái và thời gian xử lý |
+| Creator/account | ID KOL, nền tảng, ID tài khoản nguồn và liên kết ánh xạ đã xác nhận |
+| Content | ID nguồn, loại nội dung, tiêu đề/caption/text/mô tả, URL, thời gian và input version |
+| Media tùy chọn | Storage URI, loại media, transcript/OCR, provenance và version công cụ trích xuất |
+| Topic label | Content ID/version, taxonomy version, đường dẫn node ID, annotator, trạng thái và kết quả phân xử |
+| Analysis | Input/model/taxonomy version, đường dẫn dự đoán, trạng thái, thời gian xử lý |
+| Engagement tùy chọn | Snapshot theo nền tảng và thời điểm quan sát; tách khỏi nhãn AI |
 
-Giữ văn bản gốc phục vụ dẫn chứng; văn bản chuẩn hóa là trường riêng. ID tác giả bình luận chỉ lưu khi cần cho tác vụ, ưu tiên pseudonym hóa. Không thu thập thông tin riêng tư không cần thiết.
+Giữ text nguồn và text chuẩn hóa ở các trường riêng. Metadata API không đồng nghĩa có file video hoặc transcript; xác minh nguồn media riêng. Schema runtime hiện còn dành cho prototype YouTube và phải được chuyển đổi có version khi triển khai thiết kế mục tiêu.
 
-## Thu thập và chất lượng
+## Quy tắc gán nhãn
 
-- Lưu tiến độ phân trang, thời điểm poll và khóa nguồn để thu thập lặp không tạo bản ghi trùng.
-- Kiểm tra cách lấy replies; không giả định danh sách comment thread luôn chứa toàn bộ phản hồi.
-- Theo dõi nội dung bị xóa, comment bị tắt và field không được nguồn cung cấp.
-- Giữ emoji, dấu tiếng Việt, phủ định, từ lóng và dấu hiệu mỉa mai; không xóa chúng bằng tiền xử lý thô.
-- Thống kê ngôn ngữ, độ dài, spam, duplicate và tỷ lệ comment không có ý kiến.
-- Mọi tập export có manifest: nguồn, khoảng thời gian, bộ lọc, số lượng, version và checksum.
+- Phân loại nội dung thực sự có trong input; không gán theo danh tiếng, lịch sử hoặc tên KOL.
+- Dùng node ID ổn định; lưu toàn bộ đường dẫn và taxonomy version.
+- Không tự tạo nhãn mới trong lúc gán nhãn; đánh dấu đề nghị bổ sung để rà soát.
+- Tách thiếu thông tin, ngoài taxonomy và đang chờ phân xử.
+- Nội dung nhiều chủ đề hoặc chỉ đủ bằng chứng ở node cha phải theo chính sách được chốt; chưa tự ép về một lá.
+- Khi dùng nhãn lá, nhãn tổ tiên được suy ra từ cây; không gán thủ công thành các nhãn độc lập mâu thuẫn.
+- Với transcript/OCR, lưu nguồn và nhận diện dữ liệu trích xuất lỗi hoặc thiếu.
 
-## Hướng dẫn gán nhãn ban đầu
+## Chất lượng và chia tập
 
-### Nội dung
-
-- `topics`: một hoặc nhiều chủ đề trong taxonomy đã định nghĩa.
-- `brand_mentions`: tên thương hiệu, dạng chuẩn hóa và evidence.
-- `unknown/other`: dùng khi chưa có nhãn phù hợp; theo dõi để cải tiến taxonomy.
-
-### Bình luận
-
-Mỗi ý kiến có `entity`, `entity_type`, `aspect`, `opinion_span`, `sentiment` và evidence offset. Một bình luận có thể có 0, 1 hoặc nhiều tuple.
-
-- Entity có thể là KOL, thương hiệu hoặc sản phẩm; chỉ liên kết ID khi có đủ bằng chứng.
-- Sentiment: `positive`, `negative`, `neutral`; trường hợp không xác định được đánh dấu `uncertain` để rà soát, không ép thành neutral.
-- Entity/aspect ngầm định dùng cờ `implicit`; không tạo span văn bản không tồn tại.
-- Bình luận không chứa ý kiến có danh sách tuple rỗng; spam có cờ riêng.
-- Quy định offset theo chuỗi text gốc và kiểm tra `text[start:end]` khớp đoạn được gán.
-
-Taxonomy khía cạnh được chốt theo lĩnh vực. Ví dụ khảo sát: cách trình bày/độ tin cậy của KOL, giá/chất lượng/tính năng của sản phẩm; chưa coi đây là danh sách nhãn cuối cùng.
-
-## Kiểm soát nhãn và chia tập
-
-- Có ít nhất một phần dữ liệu được hai người gán độc lập, đối chiếu bất đồng và lưu kết quả phân xử. Nếu thiếu nhân sự, ghi rõ hạn chế.
-- Đo agreement theo thành phần: sentiment/aspect và span/entity; không dùng một chỉ số để đại diện mọi loại nhãn.
-- Chia train/dev/test theo video hoặc chuỗi hội thoại, ưu tiên test ở thời gian muộn hơn. Không để replies cùng thread hoặc bản sao gần giống rơi vào nhiều tập.
-- Fit taxonomy phụ trợ, bộ chuẩn hóa và lựa chọn prompt/model bằng train/dev. Khóa test trước đánh giá cuối.
-- Nếu cần tuyên bố tổng quát hóa sang KOL mới, tạo thêm tập creator holdout; kết quả theo thời gian không tự chứng minh khả năng này.
+- Thống kê số mẫu mỗi node/tầng, độ dài text, ngôn ngữ, media và tỷ lệ chưa gán được.
+- Có một phần được hai người gán độc lập; báo agreement ở từng tầng và đường dẫn, kèm phân xử. Ghi rõ nếu thiếu nhân sự.
+- Chia theo content gốc và thời gian; bài đăng lại/cắt từ cùng video phải ở cùng một split.
+- Nếu đa nền tảng, rà soát cross-post để tránh cùng nội dung ở train và test.
+- Tạo creator holdout riêng nếu cần đánh giá sang KOL chưa thấy; không coi temporal split tự chứng minh điều này.
+- Không lựa chọn taxonomy hoặc tinh chỉnh model theo lỗi của test cuối. Nếu taxonomy đổi, version dataset và đánh giá lại theo phiên bản mới.
+- Không ép đủ mọi lớp vào mọi split bằng cách phá quy tắc chống rò rỉ; ghi rõ lớp không có support.
 
 ## Replay và lưu trữ
 
-Lưu sự kiện nguồn dưới JSONL/Parquet, giữ timestamp gốc. Replay có tốc độ cấu hình, run ID riêng và chế độ timestamp được ghi trong manifest. Khi dịch thời gian để chạy demo hiện tại, giữ thêm timestamp gốc. Tăng tốc replay để đo hệ thống không thay thế đánh giá thay đổi hành vi thực tế.
+Lưu raw JSONL/Parquet và manifest có nguồn, thời gian, bộ lọc, số mẫu, version, checksum. Giữ timestamp gốc; replay có run ID và mode riêng. Nội dung sửa tạo input version mới, tránh cộng cả kết quả cũ lẫn mới vào profile.
 
-Thông tin truy cập dùng biến môi trường. Tập công khai và ảnh chụp báo cáo cần rà soát tên/ID người bình luận và điều kiện sử dụng dữ liệu. Chu kỳ giữ/xóa dữ liệu được chốt trước khi thu thập quy mô lớn.
+Collector dùng biến môi trường cho secret, lưu tiến độ phân trang và lỗi/quota. Chỉ thu dữ liệu cần cho tác vụ. Dữ liệu/comment tồn tại từ prototype cũ không tự trở thành dataset gán nhãn cho phạm vi mới.
 
-## Tham khảo kỹ thuật
+## Nguồn kỹ thuật
 
 - [YouTube Data API reference](https://developers.google.com/youtube/data/reference/rest).
-- [CommentThreads: list](https://developers.google.com/youtube/data/reference/rest/v3/commentThreads/list).
 - [Videos: list](https://developers.google.com/youtube/data/reference/rest/v3/videos/list).
 
-Kiểm tra lại quota, field và điều kiện truy cập tại thời điểm triển khai.
+Khả năng truy cập nền tảng, quota và media được xác minh khi triển khai collector.
