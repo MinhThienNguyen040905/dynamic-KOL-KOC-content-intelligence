@@ -1,5 +1,7 @@
 # Kiến trúc hệ thống đề xuất
 
+> Bộ khung local đã hiện thực luồng Kafka/Spark → AI service → database/API. Profile hiện tổng hợp khi truy vấn từ các bản ghi canonical; stateful window/watermark, collector thật và model nghiên cứu chưa triển khai. Xem [trạng thái và cách chạy](09-development.md).
+
 ## Tổng quan
 
 ```mermaid
@@ -21,7 +23,7 @@ flowchart LR
     API --> UI[Dashboard]
 ```
 
-**Lựa chọn hiện tại:** Served AI với hàng đợi inference. Spark tạo yêu cầu; worker gọi AI service và phát kết quả. Luồng này tránh giữ một lời gọi model chậm trong từng hàng xử lý Spark. Đây là thiết kế mục tiêu, chưa được triển khai.
+**Lựa chọn hiện tại:** Served AI với hàng đợi inference. Spark tạo yêu cầu; worker gọi AI service và phát kết quả. Luồng này tránh giữ một lời gọi model chậm trong từng hàng xử lý Spark. Bộ khung local đã nối được luồng này bằng baseline luật; chưa có benchmark để khẳng định hiệu năng ở quy mô lớn.
 
 ## Trách nhiệm thành phần
 

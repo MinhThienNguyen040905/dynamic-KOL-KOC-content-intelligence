@@ -9,9 +9,9 @@ Ngày ghi nhận ban đầu: **25/11/2026**. Các lựa chọn dưới đây ph�
 | D-01 | Giữ đề tài Dynamic KOL/KOC Content Intelligence | Đã thống nhất hướng | Đúng tên project và đề tài gợi ý số 13 |
 | D-02 | Một nền tảng YouTube, một lĩnh vực | Kế hoạch ban đầu | Pilot API/dữ liệu trước khi mở rộng |
 | D-03 | Hai phần AI: nội dung và tuple ABSA | Kế hoạch ban đầu | Tạo profile có dẫn chứng và tránh sentiment đơn lẻ |
-| D-04 | Served AI qua worker và Kafka request/result | Thiết kế đề xuất | Tách tài nguyên inference, retry và backpressure; kiểm chứng bằng tải |
-| D-05 | PostgreSQL phục vụ ứng dụng; file raw/normalized để replay | Thiết kế đề xuất | Đủ gọn cho MVP; xem lại khi đo tải hoặc thêm media |
-| D-06 | Dashboard theo thời gian, có dẫn chứng | Kế hoạch ban đầu | Làm rõ giá trị profile động và kiểm chứng kết luận |
+| D-04 | Served AI qua worker và Kafka request/result | Đã có bộ khung local | Luồng end-to-end đã chạy với baseline; cần đo tải và kiểm thử lỗi thêm |
+| D-05 | PostgreSQL phục vụ ứng dụng; archive raw Parquet | Đã có bộ khung local | Có snapshot và bản ghi canonical; bổ sung export normalized khi cần |
+| D-06 | Dashboard theo thời gian, có dẫn chứng | Đã có bản tối thiểu | API có bộ lọc thời gian và dẫn chứng; chưa kiểm tra trực quan bằng browser |
 | D-07 | Bắt đầu bằng văn bản, mở rộng transcript/keyframe sau | Kế hoạch ban đầu | Nguồn media và tài nguyên chưa được xác nhận |
 | D-08 | Chưa đưa RAG, recommendation, multi-agent vào MVP | Giới hạn phạm vi | Ưu tiên hoàn tất và đánh giá luồng chính |
 

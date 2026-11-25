@@ -2,7 +2,21 @@
 
 Đồ án môn **SE363 — Phát triển ứng dụng trên nền tảng dữ liệu lớn**: theo dõi nội dung và phản ứng người xem để xây dựng hồ sơ KOL/KOC cập nhật theo thời gian, kèm dẫn chứng.
 
-**Trạng thái:** đã thống nhất hướng đề tài, đang chuẩn bị dữ liệu và thiết kế. Repository hiện có tài liệu; chưa có pipeline, mô hình hoặc ứng dụng được triển khai.
+**Trạng thái:** đã có bộ khung local với Kafka, Spark Structured Streaming, PostgreSQL, AI service, worker, API và dashboard. Demo dùng dữ liệu tổng hợp và baseline luật `rules-v1`; chưa kết nối YouTube thật hoặc triển khai mô hình AI nghiên cứu.
+
+## Chạy nhanh
+
+Yêu cầu Docker Desktop chạy Linux containers. Từ thư mục gốc:
+
+```powershell
+Copy-Item .env.example .env
+docker compose up -d --build
+docker compose run --rm replay
+```
+
+Mở <http://localhost:8000>, chọn run `demo` và nạp danh sách sau khi pipeline xử lý xong. API docs tại <http://localhost:8000/docs>. Lần đầu cần tải image và Spark Kafka connector.
+
+Xem [hướng dẫn phát triển](docs/09-development.md) để chạy kiểm tra, xem log, thay cấu hình và hiểu các giới hạn của bộ khung.
 
 ## Phạm vi khởi đầu
 
@@ -27,6 +41,7 @@ Các con số trên là **mốc lập kế hoạch**, chưa phải kết quả h
 | [Kế hoạch đánh giá](docs/06-evaluation-plan.md) | Thực nghiệm AI và hệ thống |
 | [Lộ trình](docs/07-roadmap.md) | Mốc triển khai và sản phẩm bàn giao |
 | [Quyết định và rủi ro](docs/08-decisions-and-risks.md) | Lựa chọn hiện tại, giả định và cách kiểm chứng |
+| [Thiết lập và phát triển](docs/09-development.md) | Chạy local, kiểm tra và trạng thái triển khai |
 
 ## Nguyên tắc triển khai
 

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>KOL Content Intelligence</title>
+  <style>
+    :root{font-family:system-ui,sans-serif;color:#193044;background:#f2f5f8}
+    body{max-width:1100px;margin:0 auto;padding:32px 20px}h1{margin-bottom:6px}
+    .muted{color:#526579} .notice{background:#fff4d6;border:1px solid #e8ca7d;padding:14px;border-radius:10px}
+    .toolbar{display:flex;gap:12px;flex-wrap:wrap;margin:24px 0;align-items:end}
+    label{display:grid;gap:6px;font-size:14px}input,select,button{padding:10px;border:1px solid #bac9d5;border-radius:6px;font:inherit}
+    button{background:#165e78;color:white;cursor:pointer} .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px}
+    .card,section{background:white;border:1px solid #dbe3ea;border-radius:10px;padding:18px;margin-bottom:16px}
+    .number{font-size:30px;font-weight:700;margin-top:8px}.columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    ul{padding-left:22px}li{margin:8px 0}.evidence{border-top:1px solid #e1e8ef;padding:14px 0}.tag{font-size:13px;color:#165e78}
+    #status{min-height:24px}pre{white-space:pre-wrap;overflow-wrap:anywhere}a{color:#165e78}@media(max-width:600px){.columns{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <p class="muted">SE363 · Dynamic KOL/KOC Content Intelligence</p>
+  <h1>Hồ sơ nội dung KOL/KOC</h1>
+  <p class="muted">Theo dõi nội dung, phản ứng người xem và các ý kiến có dẫn chứng.</p>
+  <p class="notice">Bản khởi tạo · AI dùng luật minh họa, chưa phải mô hình nghiên cứu. Run <b>demo</b> sử dụng dữ liệu tổng hợp, chế độ replay. Chưa kết nối YouTube trực tiếp.</p>
+  <div class="toolbar">
+    <label>Run ID<input id="run" value="demo" maxlength="100"></label>
+    <button id="load">Nạp danh sách</button>
+    <label>KOL/KOC<select id="creator"><option value="">Chưa có dữ liệu</option></select></label>
+    <label>Từ (giờ máy của bạn)<input id="since" type="datetime-local"></label>
+    <label>Đến (không bao gồm)<input id="until" type="datetime-local"></label>
+    <button id="refresh">Cập nhật</button>
+  </div>
+  <p id="status" class="muted" role="status" aria-live="polite">Đang kết nối…</p>
+  <div id="cards" class="cards"></div>
+  <div class="columns"><section><h2>Chủ đề</h2><ul id="topics"></ul></section><section><h2>Thương hiệu</h2><ul id="brands"></ul></section></div>
+  <section><h2>Ý kiến theo khía cạnh</h2><p class="muted">Số đếm theo tuple ý kiến. Một bình luận có thể có nhiều tuple; không coi đây là tỷ lệ người xem.</p><ul id="aspects"></ul></section>
+  <section><h2>Dẫn chứng bình luận</h2><div id="evidence"></div></section>
+  <p><a href="/docs">Tài liệu API</a> · Tự làm mới mỗi 5 giây khi đã chọn KOL/KOC.</p>
+  <script>
+    const $=id=>document.getElementById(id);
+    async function get(path){const r=await fetch(path);if(!r.ok)throw new Error(`API ${r.status}: ${await r.text()}`);return r.json()}
+    function list(id,values){const el=$(id);el.replaceChildren();for(const [k,v] of Object.entries(values)){const li=document.createElement('li');li.textContent=`${k}: ${v}`;el.append(li)}if(!el.children.length){const li=document.createElement('li');li.textContent='Chưa có kết quả';el.append(li)}}
+    let busy=false;
+    async function refresh(){if(busy||!$('creator').value)return;busy=true;try{
+      const q=new URLSearchParams({run_id:$('run').value});for(const id of ['since','until'])if($(id).value)q.set(id,new Date($(id).value).toISOString());
+      const p=await get(`/profiles/${encodeURIComponent($('creator').value)}?${q}`);
+      $('cards').replaceChildren();for(const [label,n] of [['Nội dung',p.counts.content],['Bình luận',p.counts.comment],['Bình luận đã phân tích',p.counts.analyzed_comments],['Đang chờ kết quả',p.counts.pending]]){
+        const card=document.createElement('div');card.className='card';const title=document.createElement('div');title.textContent=label;const number=document.createElement('div');number.className='number';number.textContent=n;card.append(title,number);$('cards').append(card)}
+      list('topics',p.topics);list('brands',p.brands);list('aspects',p.aspect_sentiments);$('evidence').replaceChildren();
+      for(const e of p.evidence){const box=document.createElement('div');box.className='evidence';const tag=document.createElement('div');tag.className='tag';tag.textContent=`${e.entity_type} · ${e.aspect} · ${e.sentiment} · ${e.source_id}`;const quote=document.createElement('p');quote.textContent=e.source_text;const span=document.createElement('p');span.textContent=`Đoạn ý kiến: “${e.evidence.text}”`;const a=document.createElement('a');a.href=`/events/${encodeURIComponent(e.event_id)}?run_id=${encodeURIComponent(p.run_id)}`;a.textContent='Xem bản ghi nguồn';a.target='_blank';a.rel='noopener';box.append(tag,quote,span,a);$('evidence').append(box)}
+      if(!p.evidence.length)$('evidence').textContent='Chưa có ý kiến được trích xuất trong khoảng thời gian này.';
+      $('status').textContent=`Run: ${p.run_id} · Model: ${p.model_version} · Kết quả gần nhất: ${p.updated_at?new Date(p.updated_at).toLocaleString('vi-VN'):'chưa có'} · Kiểm tra lúc ${new Date().toLocaleTimeString('vi-VN')}`;
+    }catch(e){$('status').textContent=e.message}finally{busy=false}}
+    async function load(){try{const old=$('creator').value;const rows=await get(`/creators?run_id=${encodeURIComponent($('run').value)}`);$('creator').replaceChildren();for(const r of rows){const o=document.createElement('option');o.value=r.creator_id;o.textContent=r.creator_id;$('creator').append(o)}if(rows.some(r=>r.creator_id===old))$('creator').value=old;if(!rows.length){$('status').textContent='Chưa có dữ liệu cho run này. Hãy chạy replay rồi nạp lại danh sách.';$('cards').replaceChildren();for(const id of ['topics','brands','aspects'])list(id,{});$('evidence').replaceChildren()}else await refresh()}catch(e){$('status').textContent=e.message}}
+    $('load').onclick=load;$('refresh').onclick=refresh;$('creator').onchange=refresh;load();setInterval(refresh,5000);
+  </script>
+</body>
+</html>
+
