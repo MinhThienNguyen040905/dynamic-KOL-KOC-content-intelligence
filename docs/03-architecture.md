@@ -6,6 +6,8 @@
 
 ```mermaid
 flowchart LR
+    AF[Airflow: lịch / retry / kiểm tra hoàn tất] -.-> R
+    AF -.-> C
     Y[YouTube API] --> C[Collector]
     R[Replay dữ liệu đã lưu] --> K[Kafka: raw events]
     C --> K
@@ -38,7 +40,7 @@ flowchart LR
 | Storage | Giữ raw/normalized data và dữ liệu thực nghiệm; bắt đầu bằng file Parquet/JSONL |
 | API/dashboard | Truy vấn profile, thay đổi theo thời gian, trạng thái xử lý và dẫn chứng |
 
-FastAPI, PostgreSQL và Docker Compose là lựa chọn triển khai đề xuất. Phiên bản cụ thể sẽ được khóa khi tạo code. Airflow chỉ bổ sung khi có nhu cầu điều phối backfill, đánh giá hoặc lịch tác vụ nhiều bước.
+FastAPI, PostgreSQL và Docker Compose đã có trong bộ khung. Airflow điều phối replay qua DAG kiểm tra service, xác thực đầu vào, publish, chờ pipeline và tổng kết; collector, backfill và đánh giá model sẽ được nối vào workflow sau. Xem [hướng dẫn Airflow](10-airflow.md).
 
 ## Hợp đồng sự kiện
 

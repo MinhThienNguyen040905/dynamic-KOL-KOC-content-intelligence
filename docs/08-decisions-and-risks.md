@@ -14,6 +14,7 @@ Ngày ghi nhận ban đầu: **25/11/2026**. Các lựa chọn dưới đây ph�
 | D-06 | Dashboard theo thời gian, có dẫn chứng | Đã có bản tối thiểu | API có bộ lọc thời gian và dẫn chứng; chưa kiểm tra trực quan bằng browser |
 | D-07 | Bắt đầu bằng văn bản, mở rộng transcript/keyframe sau | Kế hoạch ban đầu | Nguồn media và tài nguyên chưa được xác nhận |
 | D-08 | Chưa đưa RAG, recommendation, multi-agent vào MVP | Giới hạn phạm vi | Ưu tiên hoàn tất và đánh giá luồng chính |
+| D-09 | Airflow 3.1.8, LocalExecutor và metadata database riêng | Đã bổ sung cấu hình và DAG replay | Điều phối tác vụ hữu hạn; DAG mẫu pause mặc định, không tự khởi động lại service streaming |
 
 ## Rủi ro cần kiểm chứng
 

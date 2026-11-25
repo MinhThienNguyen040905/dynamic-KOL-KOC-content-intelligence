@@ -13,6 +13,7 @@ Bộ tài liệu này chuyển hướng đề tài đã thống nhất thành k�
 7. [Lộ trình triển khai](07-roadmap.md).
 8. [Quyết định và rủi ro](08-decisions-and-risks.md).
 9. [Thiết lập và phát triển](09-development.md).
+10. [Điều phối bằng Airflow](10-airflow.md).
 
 ## Tài liệu nguồn trong thư mục
 

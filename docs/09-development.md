@@ -6,6 +6,8 @@
 
 `Replay → Kafka → Spark → AI request → Worker → AI service → Result → Spark → PostgreSQL → API/dashboard`
 
+Airflow đã được bổ sung để điều phối các lượt replay và kiểm tra hoàn tất. Xem [hướng dẫn Airflow](10-airflow.md); UI tại <http://localhost:8080>. Khi chạy toàn bộ stack gồm Airflow, đề xuất dành ít nhất 8 GB RAM cho Docker và điều chỉnh theo số liệu thực tế.
+
 AI `rules-v1` là luật cố định để kiểm tra tích hợp. Chưa có mô hình ABSA nghiên cứu, entity linking chính xác hoặc đánh giá chất lượng trên dữ liệu gán nhãn. Collector YouTube thật, bộ gán nhãn và phân tích media là bước tiếp theo.
 
 ## Yêu cầu môi trường

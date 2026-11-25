@@ -2,7 +2,7 @@
 
 Đồ án môn **SE363 — Phát triển ứng dụng trên nền tảng dữ liệu lớn**: theo dõi nội dung và phản ứng người xem để xây dựng hồ sơ KOL/KOC cập nhật theo thời gian, kèm dẫn chứng.
 
-**Trạng thái:** đã có bộ khung local với Kafka, Spark Structured Streaming, PostgreSQL, AI service, worker, API và dashboard. Demo dùng dữ liệu tổng hợp và baseline luật `rules-v1`; chưa kết nối YouTube thật hoặc triển khai mô hình AI nghiên cứu.
+**Trạng thái:** đã có bộ khung local với Kafka, Spark Structured Streaming, PostgreSQL, AI service, worker, API, dashboard và Airflow điều phối replay. Demo dùng dữ liệu tổng hợp và baseline luật `rules-v1`; chưa kết nối YouTube thật hoặc triển khai mô hình AI nghiên cứu.
 
 ## Chạy nhanh
 
@@ -17,6 +17,8 @@ docker compose run --rm replay
 Mở <http://localhost:8000>, chọn run `demo` và nạp danh sách sau khi pipeline xử lý xong. API docs tại <http://localhost:8000/docs>. Lần đầu cần tải image và Spark Kafka connector.
 
 Xem [hướng dẫn phát triển](docs/09-development.md) để chạy kiểm tra, xem log, thay cấu hình và hiểu các giới hạn của bộ khung.
+
+Airflow UI: <http://localhost:8080>, user `admin`, mật khẩu local mặc định `airflow_local_dev`. DAG `kol_replay_pipeline` mặc định pause; unpause để scheduler thực thi các lượt chạy, rồi pause lại sau khi demo hoàn tất. Xem [hướng dẫn Airflow](docs/10-airflow.md) về trigger, lịch và run ID.
 
 ## Phạm vi khởi đầu
 
@@ -42,6 +44,7 @@ Các con số trên là **mốc lập kế hoạch**, chưa phải kết quả h
 | [Lộ trình](docs/07-roadmap.md) | Mốc triển khai và sản phẩm bàn giao |
 | [Quyết định và rủi ro](docs/08-decisions-and-risks.md) | Lựa chọn hiện tại, giả định và cách kiểm chứng |
 | [Thiết lập và phát triển](docs/09-development.md) | Chạy local, kiểm tra và trạng thái triển khai |
+| [Điều phối Airflow](docs/10-airflow.md) | Thành phần Airflow, DAG replay và cách vận hành |
 
 ## Nguyên tắc triển khai
 
