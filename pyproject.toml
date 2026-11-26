@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools==75.6.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kol-content-intelligence"
+version = "0.1.0"
+description = "SE363 streaming KOL/KOC content intelligence"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn==0.34.0",
+    "pydantic==2.10.4",
+    "psycopg[binary]==3.2.3",
+    "confluent-kafka==2.6.1",
+    "httpx==0.28.1",
+]
+
+[project.optional-dependencies]
+spark = ["pyspark==3.5.7"]
+dev = ["pytest==8.3.4", "ruff==0.9.1"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+kol = ["static/*.html", "sql/*.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I"]
+
